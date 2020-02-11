@@ -155,20 +155,42 @@ void print_lem(t_mas_ant **ant)
 		printf("name %s| num %d | coor x %d | coor y %d\n",ant1->koordinats[i].name,ant1->koordinats[i].num,ant1->koordinats[i].x,ant1->koordinats[i].y);
 		i++;
 	}
+}
 
+int **join_res(int *dextr, int next, int **res, int size)
+{
+	int **res1;
+	int i;
 
+	i =0;
+	res1 = malloc((next + 3) * sizeof(int*));
+	while(i < next)
+	{
+		res1[i] = malloc(sizeof(int) * size);
+		ft_memcpy(res1[i],res[i],sizeof(res[i]));
+		i++;
+	}
+	res1[i++] = malloc(sizeof(int) * size);
+	ft_memcpy(res1[i - 1],dextr,sizeof(int) * size);
+	res1[i++] = malloc(sizeof(int));
+	res1[i] = 0;
+	return(res1);
 }
 
 int main(int ac, char **av)
 {
 	char		*line;
 	t_mas_ant	*ant;
-
+	int *dextr;
+	int **res;
 	int i;
 	int k;
 
 	i = 0;
 	k = 0;
+
+	res = malloc(sizeof(int*));
+
 	ant = malloc(sizeof(t_mas_ant));
 	ant->names = malloc(20* sizeof(t_sootv));
 	ant->variants = malloc (20 *sizeof(int*));
@@ -184,7 +206,6 @@ int main(int ac, char **av)
 		i++;
 	}
 	i = 0;
-	write(1,"f",1);
 	while (get_next_line(0,&line) == 1)
 	{
 		printf("| line %s\n",line);
@@ -204,7 +225,49 @@ int main(int ac, char **av)
 		}
 		free(line);
 	}
+	i=0;
+	res[0] = malloc((ant->size + 1) * sizeof(int));
 	print_lem(&ant);
-	solve(&ant);
+	dextr = solve(&ant);
+	int kik = 0;;
+	while (dextr != NULL)
+	{
+		printf("\n");
+		kik = 0;
+		while(kik < ant->size)
+		{
+			printf(" ---- %d -----",dextr[kik]);
+			kik++;
+		}
+		printf("\n");
+		kik =0;
+		res = join_res(dextr,i,res,ant->size);
+		dextr = suurbale(&ant,dextr);
+		printf("\n");
+		while(kik < ant->size)
+		{
+			//printf(" !!! %d !!!!",res[i][kik]);
+			kik++;
+		}
+
+		i++;
+	}
+	if (i > 1)
+	{
+		res = find_connect(res,i,ant->size);
+	}
+	i =0;
+	kik =0;
+	while(res[i] != 0)
+	{
+		printf("\n");
+		while(kik < ant->size)
+		{
+			printf(" [ %d ]",res[i][kik]);
+			kik++;
+		}
+		kik= 0;
+		i++;
+	}
 	return(0);
 }
