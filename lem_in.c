@@ -172,8 +172,7 @@ int **join_res(int *dextr, int next, int **res, int size)
 	}
 	res1[i++] = malloc(sizeof(int) * size);
 	ft_memcpy(res1[i - 1],dextr,sizeof(int) * size);
-	res1[i++] = malloc(sizeof(int));
-	res1[i] = 0;
+	res1[i] = NULL;
 	return(res1);
 }
 
@@ -226,10 +225,10 @@ int main(int ac, char **av)
 		free(line);
 	}
 	i=0;
-	res[0] = malloc((ant->size + 1) * sizeof(int));
 	print_lem(&ant);
 	dextr = solve(&ant);
-	int kik = 0;;
+	int kik = 0;
+	res = NULL;
 	while (dextr != NULL)
 	{
 		printf("\n");
@@ -258,7 +257,7 @@ int main(int ac, char **av)
 	}
 	i =0;
 	kik =0;
-	while(res[i] != 0)
+	while(res[i] != NULL)
 	{
 		printf("\n");
 		while(kik < ant->size)
@@ -269,5 +268,6 @@ int main(int ac, char **av)
 		kik= 0;
 		i++;
 	}
+	ants(res,&ant);
 	return(0);
 }
