@@ -13,17 +13,10 @@ typedef struct		s_kor
 	int		y;
 }					t_kor;
 
-typedef struct		s_sootv
-{
-	char	*name;
-	int		number;
-}					t_sootv;
-
 typedef struct		s_mas_ant
 {
 	int				ants;
 	int				size;
-	t_sootv			*names;
 	int				**variants;
 	t_kor			*koordinats;
 }					t_mas_ant;
@@ -45,4 +38,5 @@ int		*suurbale(t_mas_ant **ant,int *dextr);
 int	**find_connect(int **res, int max, int max1);
 void	find_room(int *res1, int *res2, int max);
 void	ants(int **res, t_mas_ant **ant2);
+t_mas_ant *memalloc_ant(t_mas_ant *ant3);
 #endif
