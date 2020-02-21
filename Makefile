@@ -11,7 +11,7 @@ HEADER = lem_in.h
 all: $(NAME)
 
 $(NAME): $(LIB)
-		gcc  -I $(HEADER) $(LIB)  -o  $(NAME) $(SRC) -g
+		gcc -O3 -I $(HEADER) $(LIB)  -o  $(NAME) $(SRC) -g
 
 $(LIB):
 		$(MAKE) -C ./libft/

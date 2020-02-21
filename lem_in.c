@@ -15,7 +15,7 @@ void 	parse_line(t_mas_ant **ant,char *line, int num)
 	ant_1->koordinats[num].num = num;
 	while(line[i]!= '\0')
 	{
-		while(ft_isalpha(line[i]) == 1 || ft_isdigit(line[i]) == 1)
+		while(line[i]!=' ')
 		{
 			ant_1->koordinats[num].name[i] = line[i];
 			i++;
@@ -175,7 +175,7 @@ int **join_res(int *dextr, int next, int **res, int size)
 	{
 		res1[i] = NULL;
 	}
-	int kik =0;
+	/*int kik =0;
 	i=0;
 	while(res1!=NULL && res1[i] != NULL)
 	{
@@ -187,7 +187,7 @@ int **join_res(int *dextr, int next, int **res, int size)
 		}
 		kik= 0;
 		i++;
-	}
+	}*/
 	return(res1);
 }
 
@@ -198,7 +198,7 @@ void free_ant(t_mas_ant **ant3)
 
 	ant = *ant3;
 	i = 0;
-	while(i > ant->size + 3)
+	while(i > ant->size - 1)
 	{
 		free(ant->variants[i]);
 		free(ant->koordinats[i].name);
@@ -244,7 +244,9 @@ t_mas_ant *memalloc_ant(t_mas_ant *ant3)
 		}
 	}
 	if (ant->size > 2)
-	free_ant(&ant);
+	{
+		free_ant(&ant);
+	}
 	return(ant_new);
 }
 
@@ -302,43 +304,42 @@ int main(int ac, char **av)
 	res = NULL;
 	i = 0;
 	//printf("\n");
-	while (dextr != NULL)
+	while (dextr != NULL && i < ant->ants)
 	{
 		res = join_res(dextr,i,res,ant->size);
-
 		dextr = suurbale(&ant,dextr);
 		i++;
 	}
-
 	res[i] = NULL;
-	/*kik =0;
+	kik =0;
 	i=0;
 	while(res!=NULL && res[i] != NULL)
 	{
 		printf("res[i] \n");
-		while(kik < ant->size)
+		while(kik < ant->size - 1)
 		{
 			printf(" [ %d ]",res[i][kik]);
 			kik++;
 		}
 		kik= 0;
 		i++;
-	}*/
+	}
 	if (i > 1)
 		res = find_connect(res,i,ant->size - 1);
-	/*i =0;
+	printf("FIND\n");
+	i =0;
 	kik =0;
 	while(res!=NULL && res[i] != NULL)
 	{
 		printf("\n");
-		while(kik < ant->size)
+		while(kik < ant->size -1)
 		{
 			printf(" [ %d ]",res[i][kik]);
 			kik++;
 		}
 		kik= 0;
 		i++;
-	}*/
+	}
 	ants(res,&ant);
 	return(0);
 }

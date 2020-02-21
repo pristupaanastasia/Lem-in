@@ -73,12 +73,12 @@ t_ant *search_ants(int ant,int *len_solve,int max)
 
 	ants = malloc(sizeof(t_ant));
 	i =0;
-	ants->ants = malloc((max) * sizeof(int));
-	ants->room = malloc((max) * sizeof(int));
-	ants->way = malloc((max) * sizeof(int));
-	ft_bzero(ants->ants, (max) * sizeof(int));
-	ft_bzero(ants->room, (max) * sizeof(int));
-	ft_bzero(ants->way, (max) * sizeof(int));
+	ants->ants = malloc((ant + 1) * sizeof(int));
+	ants->room = malloc((ant + 1) * sizeof(int));
+	ants->way = malloc((ant + 1) * sizeof(int));
+	ft_bzero(ants->ants, (ant + 1) * sizeof(int));
+	ft_bzero(ants->room, (ant + 1) * sizeof(int));
+	ft_bzero(ants->way, (ant + 1) * sizeof(int));
 	return(ants);
 
 }
@@ -91,7 +91,7 @@ void	print_ants(t_ant **ant1,t_mas_ant **ant2,int **res)
 	i = 0;
 	ant = *ant1;
 	ant3 = *ant2;
-	while(i < ant3->size -1 && ant->room[i]!= 0)
+	while(ant->room[i]!= 0)
 	{
 		if(ant->room[i] == -1)
 		{
@@ -130,7 +130,7 @@ void 	next_hod_for_ant(t_ant **ant3,t_mas_ant **ant2,int **res)
 
 	i = 0;
 	ant = *ant3;
-	while(i < (*ant2)->size - 1 && ant->room[i]!= 0)
+	while(ant->room[i]!= 0)
 	{
 		if (ant->room[i] > 0)
 			ant->room[i] = next_room(ant->room[i],res[ant->way[i]],(*ant2)->size);
@@ -165,6 +165,29 @@ void	ants2(int **res, t_mas_ant **ant2,t_ant **ant3)
 		printf("\n");
 	}
 }
+
+int len_solve_len(int *len)
+{
+	int i;
+
+	i = 0;
+	while(len[i]!=0)
+		i++;
+	return(i);
+}
+int arifmet(int *lem)
+{
+	int i;
+	int sum;
+
+	sum = 0;
+	while(lem[i]!=0)
+	{
+		sum =sum+ lem[i];
+		i++;
+	}
+	return(sum);
+}
 void	ants(int **res, t_mas_ant **ant2)
 {
 	t_mas_ant *ant1;
@@ -173,36 +196,53 @@ void	ants(int **res, t_mas_ant **ant2)
 	int time;
 	int	*len_solve;
 	int ant;
+	int time1;
 	t_ant *ants;
 	int min_hod;
+	int len;
+	int arifm;
 
 	ant1 = *ant2;
 	ant = ant1->ants;
 	len_solve = lensolve(res);
 	min_hod = min_hodd(len_solve);
-	time = min_hod * ant;
+	time = 0;
+	time1 = 0;
 	ants = search_ants(ant,len_solve,ant1->size);
 	len_solve = lensolve(res);
 	i = 0;
 	j = 1;
+	len = len_solve_len(len_solve);
+	arifm = arifmet(len_solve);
 	printf("\n");
-	while(ant > 0 && j < ant1->size - 1)
+	printf("ANT %d\n",arifm);
+	while(ant> 0 )
 	{
 		if (j > 1)
 			next_hod_for_ant(&ants,ant2,res);
 		while(len_solve[i]!=0 && ant>0)
 		{
-			if(len_solve[i] <= time)
+			//printf(" ARIFM %d  \n",(arifm-len_solve[i])/(len-1));
+			if((time == 0 && len_solve[i] <= ant/(len-1) + (arifm-len_solve[i])/(len-1)) || (len_solve[i] - min_hod < ant && ant <= len) || (ant > len && len_solve[i] <= ant/(len-1) + (arifm-len_solve[i])/(len-1)))
 			{
+				//printf(" arifm  %d  \n",(arifm-len_solve[i])/(len-1));
 				ants->room[j - 1] = res[i][0] == 0 ? -1 : res[i][0];
-				ants->way[j++ - 1] = i;
+				ants->way[j - 1] = i;
+				j++;
 				ant--;
+				if (len_solve[i] > time1)
+					time1 = len_solve[i];
+				//printf("|ant %d j %d |\n",ant,j);
 			}
 			i++;
 		}
 		print_ants(&ants,ant2,res);
-		time = time - min_hod;
 		i =0;
+		time--;
+		if (time1 >time)
+			time = time  + (time1 - time );
+		time1 = 0;
+		printf("TIME %d",time);
 		printf("\n");
 	}
 	ants2(res,ant2,&ants);
@@ -363,7 +403,7 @@ void find_room(int *res1, int *res2, int max)
 			{
 				swap_res(res1,res2,i,j);
 			}
-			if (j > 0 && res1[i] != 0 && res2[j] != 0 && res1[i] == res2[j] && res2[j - 1] == res1[i + 1])
+			if (j > 0 && j >= i &&res1[i] != 0 && res2[j] != 0 && res1[i] == res2[j] && res2[j - 1] == res1[i + 1])
 			{
 				swap_res(res2,res1,j,i);
 			}
@@ -396,6 +436,25 @@ int	**find_connect(int **res, int max, int max1)
 	}
 	return(res);
 }
+
+int end_empty(int **var,int max)
+{
+	int i;
+	int j;
+
+	i = 0;
+	j = 0;
+	while(var[0][j] < 1 && j < max)
+		j++;
+	if (j == max)
+		return(0);
+	else
+	{
+		return(1);
+	}
+
+}
+
 int *suurbale(t_mas_ant **ant,int *dextr)
 {
 	int **var;
@@ -415,7 +474,14 @@ int *suurbale(t_mas_ant **ant,int *dextr)
 		j++;
 	}
 	var[i][dextr[j]] = -1;
-	solve1= solve(ant);
+	free(dextr);
+	if (end_empty(var,ant1->size - 1)!= 0)
+		solve1= solve(ant);
+	else
+	{
+		return(NULL);
+	}
+
 	if (solve1[0] == 0)
 		return(NULL);
 	return(solve1);
@@ -435,19 +501,22 @@ int		*solve(t_mas_ant **ant)
 
 	ant1 = *ant;
 	sum = 0;
-	solve = malloc((ant1->size +2) *sizeof(int));
-	solve_now = malloc((ant1->size + 2)*sizeof(int));
+	solve = malloc((ant1->size) *sizeof(int));
+	solve_now = malloc((ant1->size)*sizeof(int));
 	i = 1;
 	j = 0;
 	check = 0;
 	hod_now = 0;
-	ft_bzero(solve,(ant1->size + 2) *sizeof(int));
-	ft_bzero(solve_now,(ant1->size + 2) *sizeof(int));
+	ft_bzero(solve,(ant1->size) *sizeof(int));
+	ft_bzero(solve_now,(ant1->size) *sizeof(int));
+
 	minsum = ant1->size - 1;
-	while (check != 1 && hod_now != -1 && j < ant1->size - 1 && i < ant1->size - 1)
+	while (check != 1 && hod_now != -1 && j < ant1->size - 1 && i < ant1->size - 1 && hod_now < minsum)
 	{
-		while(i != 0 && hod_now > -1)
+		printf("SOLVE\n");
+		while(i != 0 && hod_now > -1 && hod_now < minsum)
 		{
+			printf("%d!\n",i);
 			while(j < (ant1->size - 1) && (ant1->variants[i][j] < 1 || new_connect(j,solve_now,hod_now) != 1))
 				j++;
 			if (j < (ant1->size - 1) && i < ant1->size - 1 && new_connect(j,solve_now,hod_now) == 1 && hod_now < minsum)
@@ -458,7 +527,7 @@ int		*solve(t_mas_ant **ant)
 				j = 0;
 			}else
 			{
-				if (hod_now > 0)
+				if (hod_now > 0 && hod_now < minsum)
 				{
 					j = solve_now[--hod_now] + 1;
 					solve_now[hod_now] = 0;
@@ -467,7 +536,7 @@ int		*solve(t_mas_ant **ant)
 				}
 				else
 				{
-					hod_now--;
+					hod_now = -1;
 					i = 1;
 				}
 
@@ -476,30 +545,34 @@ int		*solve(t_mas_ant **ant)
 		if (hod_now > -1)
 		{
 			solve_now[hod_now] = i;
-			if ((minsum != ant1->size && equality_solve(solve_now,solve,hod_now) == 1 )|| i != 0)
+			if ((minsum != ant1->size - 1 && equality_solve(solve_now,solve,hod_now) == 1 )|| i != 0)
 				check = 1;
-			if (sum < minsum && i == 0)
+			else
 			{
-				minsum = sum;
-				ft_memcpy(solve,solve_now,(ant1->size) *sizeof(int));
-			}
-			sum--;
-			if (hod_now > 0)
-			{
-				j = solve_now[--hod_now] + 1;
-				solve_now[hod_now] = 0;
+				if (sum < minsum && i == 0)
+				{
+					minsum = sum;
+					ft_memcpy(solve,solve_now,(ant1->size) *sizeof(int));
+				}
+				sum--;
 				if (hod_now > 0)
-				i = solve_now[hod_now - 1];
+				{
+					j = solve_now[--hod_now] + 1;
+					solve_now[hod_now] = 0;
+					if (hod_now > 0)
+					i = solve_now[hod_now - 1];
+				}
 			}
 		}
 	}
-	/*i = 0;
-	while(i < ant1->size - 1)
+	printf("SOLVE_N\n");
+	i = 0;
+	while(i < ant1->size-1)
 	{
 		printf("-%d-",solve[i]);
 		i++;
 	}
-	printf("\n");*/
+	printf("\n");
 	free(solve_now);
 	return(solve);
 }
