@@ -1,4 +1,5 @@
 #include "lem_in.h"
+#include "limits.h"
 #include <stdio.h>
 
 void 	parse_line(t_mas_ant **ant,char *line, int num)
@@ -89,7 +90,6 @@ void parse_line_svizi(t_mas_ant **ant,char *line)
 	}
 	ant1->variants[num1][num2] = 1;
 	ant1->variants[num2][num1] = 1;
-	//print_lem(ant);
 }
 
 int parse(t_mas_ant **ant,char *s)
@@ -135,7 +135,7 @@ void print_lem(t_mas_ant **ant)
 	ant1 = *ant;
 	i = 0;
 	j = 0;
-	printf("ants %d \n",ant1->ants);
+	printf("ants %ld \n",ant1->ants);
 	printf("size %d \n",ant1->size);
 	while(i < ant1->size - 1)
 	{
@@ -172,22 +172,8 @@ int **join_res(int *dextr, int next, int **res, int size)
 		res1[i] = NULL;
 	}
 	else
-	{
 		res1[i] = NULL;
-	}
-	/*int kik =0;
-	i=0;
-	while(res1!=NULL && res1[i] != NULL)
-	{
-		printf("res_new[i] \n");
-		while(kik < size)
-		{
-			printf(" [ %d ]",res1[i][kik]);
-			kik++;
-		}
-		kik= 0;
-		i++;
-	}*/
+	free_res(res,next);
 	return(res1);
 }
 
@@ -198,7 +184,7 @@ void free_ant(t_mas_ant **ant3)
 
 	ant = *ant3;
 	i = 0;
-	while(i > ant->size - 1)
+	while(i < ant->sizm)
 	{
 		free(ant->variants[i]);
 		free(ant->koordinats[i].name);
@@ -210,7 +196,7 @@ void free_ant(t_mas_ant **ant3)
 
 }
 
-t_mas_ant *memalloc_ant(t_mas_ant *ant3)
+t_mas_ant *memalloc_ant(t_mas_ant *ant3,int mem)
 {
 	t_mas_ant *ant_new;
 	t_mas_ant *ant;
@@ -219,37 +205,165 @@ t_mas_ant *memalloc_ant(t_mas_ant *ant3)
 	i = 0;
 	ant = ant3;
 	ant_new = malloc(sizeof(t_mas_ant));
-	ant_new->variants = malloc ((ant->size + 2)  *sizeof(int*));
-	ant_new->koordinats = malloc((ant->size + 2)  *sizeof(t_kor));
-	while (i < ant->size + 2)
+	ant_new->variants = malloc ((mem)  *sizeof(int*));
+	ant_new->koordinats = malloc((mem)  *sizeof(t_kor));
+	while (i < mem)
 	{
-		ant_new->variants[i] = malloc ((ant->size + 2)  *sizeof(int));
-		ft_bzero(ant_new->variants[i],(ant->size + 2)  *sizeof(int));
-		ant_new->koordinats[i].name = malloc(100);
-		ft_bzero(ant_new->koordinats[i].name,100);
+		ant_new->variants[i] = malloc ((mem)  *sizeof(int));
+		ft_bzero(ant_new->variants[i],(mem)  *sizeof(int));
+		ant_new->koordinats[i].name = ft_strnew(100);
 		ant_new->koordinats[i].num = 0;
+		ant_new->koordinats[i].level = -1;
 		i++;
 	}
 	i = 0;
 	ant_new->ants = ant->ants;
 	ant_new->size = ant->size;
-	if (ant->size > 2)
+	if (mem > ant->sizm)
 	{
-		ft_memcpy(ant_new->koordinats,ant->koordinats,(ant->size - 1) * sizeof(t_kor));
-		while(i < ant->size-1)
+		while(i < ant->sizm)
 		{
 			ft_memcpy(ant_new->koordinats[i].name,ant->koordinats[i].name,100);
 			ant_new->koordinats[i].num = ant->koordinats[i].num;
+			ant_new->koordinats[i].x = ant->koordinats[i].x;
+			ant_new->koordinats[i].y = ant->koordinats[i].y;
 			i++;
 		}
 	}
-	if (ant->size > 2)
-	{
+	if (mem > ant->sizm)
 		free_ant(&ant);
-	}
+	ant_new->sizm = mem;
 	return(ant_new);
 }
+void free_res(int **res, int size)
+{
+	while(size-- >0)
+		free(res[size]);
+	free(res);
+}
+int 	check_valid(t_mas_ant *ant)
+{
+	char *line;
+	int i;
+	int j;
+	int f;
 
+	i = 100;
+	j =0;
+	f = 0;
+	line = NULL;
+	if (ant->ants == 0)
+		return(1);
+	while(i > 0)
+	{
+		if(get_next_line(0,&line) == 1)
+		{
+			free(line);
+			return(1);
+		}
+		i--;
+	}
+	if (ant->koordinats[0].name[0] == '\0' || ant->koordinats[1].name[0] == '\0')
+		return(1);
+	i = 0;
+	while(i < ant->size)
+	{
+		while(j < ant->size)
+		{
+			f = f + ant->variants[i][j];
+			j++;
+		}
+		j=0;
+		i++;
+	}
+	if (f == 0)
+		return(1);
+	return(0);
+}
+
+/*int check_ant(t_mas_ant *ant)
+{
+	int i;
+	int j;
+
+	i = 0;
+	j = 1;
+	while(i < ant->size -1)
+	{
+		while(j < ant->size - 1)
+		{
+			if (ant->koordinats[i].x == ant->koordinats[j].x && ant->koordinats[i].y == ant->koordinats[j].y)
+				return(1);
+			if (ant->koordinats[i].name == ant->)
+		}
+	}
+}*/
+
+void del_level(t_mas_ant *ant)
+{
+	int i;
+	int j;
+
+	i = 1;
+	j = 2;
+	while (i < ant->size -1)
+	{
+		while (j < ant->size -1)
+		{
+			if (ant->variants[i][j] == 1 && ant->koordinats[i].level == ant->koordinats[j].level  && ant->koordinats[i].level > 1)
+			{
+				ant->variants[i][j] = 0;
+				ant->variants[j][i] = 0;
+				//printf("del %s  - %s",ant->koordinats[i].name,ant->koordinats[j].name);
+			}
+			j++;
+		}
+		j = 0;
+		i++;
+	}
+
+}
+
+void		find_level(t_mas_ant *ant)
+{
+	int i;
+	int j;
+	int k;
+
+	i = 2;
+	j = 0;
+	k = 1;
+	ant->koordinats[1].level = 0;
+	while(i < ant->size -1)
+	{
+		if (ant->variants[1][i] == 1)
+			ant->koordinats[i].level = 1;
+		i++;
+	}
+	i = 2;
+	while (k < ant->size -1)
+	{
+		while(i < ant->size - 1)
+		{
+			if (ant->koordinats[i].level == k)
+			{
+				j = 0;
+				while(j < ant->size - 1)
+				{
+					if (ant->variants[i][j] == 1 && ant->koordinats[j].level < 1 && j != 1 && j!=0)
+					{
+						ant->koordinats[j].level = k + 1;
+					}
+					j++;
+				}
+			}
+			i++;
+		}
+		k++;
+		i = 0;
+	}
+	del_level(ant);
+}
 int main(int ac, char **av)
 {
 	char		*line;
@@ -257,89 +371,97 @@ int main(int ac, char **av)
 	int *dextr;
 	int **res;
 	int i;
-	int k;
 	int size;
 
 	i = 0;
-	k = 0;
 
 	ant = malloc(sizeof(t_mas_ant));
 	ant->size = 2;
+	ant->sizm = 1000;
 	ant->ants = 0;
-	ant = memalloc_ant(ant);
-	// memalloc_ant(&ant);
-	i = 0;
-	size = 1;
+	size = 1000;
+	ant = memalloc_ant(ant,size);
 	while (get_next_line(0,&line) == 1)
 	{
 		printf("%s\n",line);
 		if (ant->ants == 0)
 		{
-			while(ft_isdigit(line[i]) == 1)
-			{
-				k = line[i] - 48 + k*10;
-				i++;
-			}
-			ant->ants = k;
+			while(ft_isdigit(line[i]) == 1 && ant->ants < INT16_MAX)
+				ant->ants = line[i++] - 48 + ant->ants * 10;
 			ant->size = 3;
-			size = 3;
+			if (ant->ants == 0 || ant->ants >= INT16_MAX)
+			{
+				printf("error");
+				return(0);
+			}
 		}
 		else
 		{
 			parse(&ant,line);
-			if (size < ant->size)
+			//if (check_ant(ant) == 1)
+			//	return(0);
+			if (size < ant->size + 3)
 			{
-				size = ant->size;
-				ant = memalloc_ant(ant);
-
+				size = 2 * size;
+				ant = memalloc_ant(ant,size);
 			}
 		}
 		free(line);
-		//print_lem(&ant);
 	}
-	i=0;
-	//print_lem(&ant);
+	if (check_valid(ant) == 1)
+	{
+		printf("error");
+		return(0);
+	}
+	//print_lem(&ant);           39 
+	if (ant->size > 1000)
+		find_level(ant);
 	dextr = solve(&ant);
-	int kik =0;
 	res = NULL;
 	i = 0;
-	//printf("\n");
-	while (dextr != NULL && i < ant->ants)
+	//print_lem(&ant);
+	while (dextr != NULL && i < 4 && i < ant->ants)
 	{
 		res = join_res(dextr,i,res,ant->size);
 		dextr = suurbale(&ant,dextr);
 		i++;
 	}
 	res[i] = NULL;
-	kik =0;
-	i=0;
-	while(res!=NULL && res[i] != NULL)
+	/*i = 0;
+	int kik = 0;
+	//print_lem(&ant);
+	while(res[i]!= NULL)
 	{
-		printf("res[i] \n");
-		while(kik < ant->size - 1)
+		printf(" res %d\n",i);
+		while(kik<ant->size -1)
 		{
-			printf(" [ %d ]",res[i][kik]);
+			printf(" %s ",ant->koordinats[res[i][kik]].name);
 			kik++;
 		}
-		kik= 0;
 		i++;
-	}
+		kik =0;
+		printf("\n");
+	}*/
 	if (i > 1)
 		res = find_connect(res,i,ant->size - 1);
-	printf("FIND\n");
-	i =0;
-	kik =0;
-	while(res!=NULL && res[i] != NULL)
+	/*i = 0;
+	kik = 0;
+	printf("POSLE\n");
+	while(res[i]!= NULL)
 	{
-		printf("\n");
-		while(kik < ant->size -1)
+		printf(" res %d\n",i);
+		while(kik<ant->size -1)
 		{
-			printf(" [ %d ]",res[i][kik]);
+			printf(" %s ",ant->koordinats[res[i][kik]].name);
 			kik++;
 		}
-		kik= 0;
 		i++;
-	}
+		kik =0;
+		printf("\n");
+	}*/
 	ants(res,&ant);
+	free_ant(&ant);
+	free_res(res,i);
+	free(dextr);
 	return(0);
 }

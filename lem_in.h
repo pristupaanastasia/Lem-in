@@ -8,6 +8,7 @@
 typedef struct		s_kor
 {
 	char	*name;
+	int		level;
 	int		num;
 	int		x;
 	int		y;
@@ -15,8 +16,9 @@ typedef struct		s_kor
 
 typedef struct		s_mas_ant
 {
-	int				ants;
+	long			ants;
 	int				size;
+	int				sizm;
 	int				**variants;
 	t_kor			*koordinats;
 }					t_mas_ant;
@@ -38,5 +40,6 @@ int		*suurbale(t_mas_ant **ant,int *dextr);
 int	**find_connect(int **res, int max, int max1);
 void	find_room(int *res1, int *res2, int max);
 void	ants(int **res, t_mas_ant **ant2);
-t_mas_ant *memalloc_ant(t_mas_ant *ant3);
+t_mas_ant *memalloc_ant(t_mas_ant *ant3, int size);
+void free_res(int **res, int size);
 #endif
